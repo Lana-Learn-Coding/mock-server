@@ -1,4 +1,4 @@
-package org.example.adflex;
+package org.example.mock;
 
 import io.quarkus.test.junit.NativeImageTest;
 

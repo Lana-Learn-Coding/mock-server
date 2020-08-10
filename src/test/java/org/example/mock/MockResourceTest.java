@@ -1,4 +1,4 @@
-package org.example.adflex;
+package org.example.mock;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -11,17 +11,6 @@ import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
 public class MockResourceTest {
-
-    @Test
-    public void apiPostDefault() {
-        given()
-            .when()
-            .contentType(ContentType.JSON)
-            .post("/api/post")
-            .then()
-            .statusCode(200);
-    }
-
     @Test
     public void apiPostJson() {
         JsonObject config = new JsonObject()
