@@ -2,10 +2,7 @@ package org.example.mock;
 
 import io.vertx.core.json.JsonObject;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -19,10 +16,65 @@ public class MockResource {
 
     private final JsonObject config = new JsonObject();
 
+    @GET
+    public Response apiGet() {
+        return response();
+    }
+
     @POST
-    @Path("/post")
     public Response apiPost() {
+        return response();
+    }
+
+    @GET
+    @Path("/any{p:/?}{any: .*}")
+    public Response apiGetAny() {
+        return response();
+    }
+
+    @POST
+    @Path("/any{p:/?}{any: .*}")
+    public Response apiPostAny() {
+        return response();
+    }
+
+    @GET
+    @Path("/code/{code}{p:/?}{any: .*}")
+    public Response apiGetCode(@PathParam("code") int code) {
+        return response(code);
+    }
+
+    @POST
+    @Path("/code/{code}{p:/?}{any: .*}")
+    public Response apiPostCode(@PathParam("code") int code) {
+        return response(code);
+    }
+
+    @POST
+    @Path("/config")
+    public Response config(JsonObject config) {
+        System.out.println(config.toString());
+        if (config.getValue(HTTP_STATUS_CODE) instanceof Integer) {
+            this.config.put(HTTP_STATUS_CODE, config.getInteger(HTTP_STATUS_CODE));
+        }
+
+        if (config.getValue(BODY) instanceof String || config.getValue(BODY) instanceof JsonObject) {
+            try {
+                this.config.put(BODY, new JsonObject(config.getString(BODY)));
+            } catch (Exception e) {
+                this.config.put(BODY, config.getString(BODY));
+            }
+        }
+
+        return Response.ok().build();
+    }
+
+    private Response response() {
         int status = config.getInteger(HTTP_STATUS_CODE, 200);
+        return response(status);
+    }
+
+    private Response response(int status) {
         if (config.getValue(BODY) instanceof String) {
             return Response.status(status)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN)
@@ -40,19 +92,5 @@ public class MockResource {
         return Response.status(status)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN)
             .build();
-    }
-
-    @POST
-    @Path("/config")
-    public Response config(JsonObject config) {
-        if (config.getValue(HTTP_STATUS_CODE) instanceof Integer) {
-            this.config.put(HTTP_STATUS_CODE, config.getInteger(HTTP_STATUS_CODE));
-        }
-
-        if (config.getValue(BODY) instanceof String || config.getValue(BODY) instanceof JsonObject) {
-            this.config.put(BODY, config.getValue(BODY));
-        }
-
-        return Response.ok().build();
     }
 }
